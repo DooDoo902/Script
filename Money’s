@@ -1,0 +1,21 @@
+-- ServerScript.lua
+-- Place this script inside ServerScriptService
+
+game.Players.PlayerAdded:Connect(function(player)
+    -- Create leaderstats folder if it doesn't exist
+    local leaderstats = Instance.new("Folder")
+    leaderstats.Name = "leaderstats"
+    leaderstats.Parent = player
+
+    -- Create Money stat
+    local money = Instance.new("IntValue")
+    money.Name = "Money"
+    money.Value = 0 -- Starting amount
+    money.Parent = leaderstats
+
+    -- Give player 100,000 every 60 seconds
+    while player.Parent do
+        wait(60)
+        money.Value = money.Value + 100000
+    end
+end)
