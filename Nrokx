@@ -1,0 +1,57 @@
+local Players = game:GetService("Players")
+
+Players.PlayerAdded:Connect(function(player)
+    -- Setup leaderstats
+    local leaderstats = Instance.new("Folder")
+    leaderstats.Name = "leaderstats"
+    leaderstats.Parent = player
+
+    local money = Instance.new("IntValue")
+    money.Name = "Money"
+    money.Value = 0
+    money.Parent = leaderstats
+
+    -- Create ScreenGui and Button for the player
+    local screenGui = Instance.new("ScreenGui")
+    screenGui.Name = "MoneyGui"
+    screenGui.ResetOnSpawn = false -- So it persists on respawn
+    screenGui.Parent = player:WaitForChild("PlayerGui")
+
+    local button = Instance.new("TextButton")
+    button.Name = "MoneyButton"
+    button.Size = UDim2.new(0, 150, 0, 50)
+    button.Position = UDim2.new(0, 10, 0, 10)
+    button.Text = "Money"
+    button.Parent = screenGui
+
+    -- Flag to track if player is earning money
+    local earning = false
+
+    -- Listen for button clicks from the client
+    -- Since this is a server script, we can't listen directly,
+    -- So we use RemoteEvent for communication.
+
+    -- Create a RemoteEvent to handle button clicks
+    local remoteEvent = Instance.new("RemoteEvent")
+    remoteEvent.Name = "MoneyToggleEvent"
+    remoteEvent.Parent = player
+
+    -- When the remote fires, toggle earning state
+    remoteEvent.OnServerEvent:Connect(function(plr)
+        if plr == player then
+            earning = not earning
+            -- Tell client to update button text
+            remoteEvent:FireClient(player, earning)
+        end
+    end)
+
+    -- Give money every 60 seconds if toggled on
+    spawn(function()
+        while player.Parent do
+            wait(60)
+            if earning then
+                money.Value = money.Value + 100000
+            end
+        end
+    end)
+end)
